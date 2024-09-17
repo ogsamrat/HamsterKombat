@@ -20,13 +20,22 @@ db = client["HamsterKombat"]
 
 
 def add(user_id, username):
-    
     my_collection = db["users"]
     s = my_collection.find_one({"user_id": user_id})
     if not s:
-        my_collection.insert_one({"user_id": user_id, "username": username})
+        my_collection.insert_one({"user_id": user_id, "username": username, "hash": ""})
         
-        
+def get_hash(user_id):
+    my_collection = db["users"]
+    s = my_collection.find_one({"user_id": user_id})
+    return s["hash"]
+
+
+def add_hash(user_id, hash):
+    my_collection = db["users"]
+    return my_collection.update_one({"user_id": user_id}, {"$set": {"hash": hash}})  
+
+
 def getall():
     my_collection = db["users"]
     return my_collection.find()
@@ -38,9 +47,15 @@ async def promogen(a, b, c, bot, msg, rep):
     promo_id = b
   
     async def generate_client_id():
-        timestamp = int(time.time() * 1000)
-        random_numbers = ''.join(str(random.randint(0, 9)) for _ in range(19))
-        return f"{timestamp}-{random_numbers}"
+        hash_id = get_hash(msg.from_user.id)
+        if len(hash_id) != 0:
+            return hash_id
+        else:                
+            timestamp = int(time.time() * 1000)
+            random_numbers = ''.join(str(random.randint(0, 9)) for _ in range(19))
+            hash_id = f"{timestamp}-{random_numbers}"
+            add_hash(msg.from_user.id, hash_id)
+            return hash_id
 
     async def login_client():
         client_id = await generate_client_id()
@@ -223,7 +238,7 @@ async def start(bot, msg):
         userid = {"user_id": msg.from_user.id}
         return await msg.reply(f"**ERROR:** `one process is already running for {userid}`")
     
-    a = await msg.reply("**⌛️Generating Keys**\n\n**Note: It usually takes about 5 mins if the bot isn't flooded with many users (can take upto an hour in such cases)\n\nIf the process gets aborted, you will get to know!__", reply_markup=InlineKeyboardMarkup([
+    a = await msg.reply("**⌛️Generating Keys**\n\n**Note: It usually takes about 10 mins if the bot isn't flooded with many users (can take upto an hour in such cases)\n\nIf the process gets aborted, you will get to know!__", reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton("Check Status", "status")],               
             ]))
 
