@@ -1,4 +1,4 @@
-# coded by samrat
+# < Coded by Samrat >
 import asyncio
 import aiohttp
 import time
@@ -6,16 +6,16 @@ import random
 import uuid
 from pyrogram import *
 from pyrogram.types import *
+import pymongo
 
 bot = Client("bot", api_id, "api_hash", bot_token="put your bot token from botfather", in_memory=True)
 
 temp = {}
 alr = []
-OWNER_ID = 123456789 # replace with your userid
+OWNER_ID = 123456789  # replace with your userid
+mongodb_uri = "your mongodb uri"  # get this from mongodb.com (example: "mongodb+srv://<username>:<password>@<cluster>/?retryWrites=true&w=majority") [don't include <>]
 
-import pymongo
-
-client = pymongo.MongoClient("mongodb+srv://<username>:<password>@<cluster>/?retryWrites=true&w=majority")
+client = pymongo.MongoClient(mongodb_uri)
 db = client["HamsterKombat"]
 
 
@@ -24,6 +24,7 @@ def add(user_id, username):
     s = my_collection.find_one({"user_id": user_id})
     if not s:
         my_collection.insert_one({"user_id": user_id, "username": username, "hash": ""})
+
         
 def get_hash(user_id):
     my_collection = db["users"]
@@ -50,7 +51,7 @@ async def promogen(a, b, c, bot, msg, rep):
         hash_id = get_hash(msg.from_user.id)
         if len(hash_id) != 0:
             return hash_id
-        else:                
+        else: 
             timestamp = int(time.time() * 1000)
             random_numbers = ''.join(str(random.randint(0, 9)) for _ in range(19))
             hash_id = f"{timestamp}-{random_numbers}"
@@ -71,7 +72,7 @@ async def promogen(a, b, c, bot, msg, rep):
                     data = await response.json()
                     return data['clientToken']
             except Exception as error:
-                #await rep.reply('**ERROR:** `failed to login`', quote=True)
+                # await rep.reply('**ERROR:** `failed to login`', quote=True)
                 await asyncio.sleep(5)
                 return await login_client()  
 
@@ -122,7 +123,7 @@ async def promogen(a, b, c, bot, msg, rep):
         temp[msg.from_user.id].append(code_data)
 
     try:
-        tasks = [gen() for _ in range(4)]
+        tasks = [gen() for _ in range(1)]
         await asyncio.gather(*tasks)
     except Exception as error:
         print(f'error: {error}')
@@ -148,19 +149,19 @@ games = {
     "MERGE": {
         "app_token": "8d1cc2ad-e097-4b86-90ef-7a27e19fb833",
         "promo_id": "dc128d28-c45b-411c-98ff-ac7726fbaea4",
-    }, 
+    },
     "TWERK": {
         "app_token": "61308365-9d16-4040-8bb0-2f4a4c69074c",
         "promo_id": "61308365-9d16-4040-8bb0-2f4a4c69074c",
-    },          
+    },
     "POLY": {
         "app_token": "2aaf5aee-2cbc-47ec-8a3f-0962cc14bc71",
         "promo_id": "2aaf5aee-2cbc-47ec-8a3f-0962cc14bc71",
-    },     
+    },
     "TRIM": {
         "app_token": "ef319a80-949a-492e-8ee0-424fb5fc20a6",
         "promo_id": "ef319a80-949a-492e-8ee0-424fb5fc20a6",
-    }, 
+    },
     "STONE": {
         "app_token": "04ebd6de-69b7-43d1-9c4b-04a6ca3305af",
         "promo_id": "04ebd6de-69b7-43d1-9c4b-04a6ca3305af",
@@ -172,8 +173,9 @@ games = {
     "HIDE": {
         "app_token": "4bf4966c-4d22-439b-8ff2-dc5ebca1a600",
         "promo_id": "4bf4966c-4d22-439b-8ff2-dc5ebca1a600",
-    },  
+    },
 }
+
 
 @bot.on_message(filters.command("broadcast_all"))
 async def brd(bot, msg):
@@ -186,7 +188,7 @@ async def brd(bot, msg):
             d = 0
             t = 0
             for x in users:
-                t+=1
+                t += 1
                 user_id = x["username"] if x.get("username") else x["user_id"]
                 try:
                     await msg.reply_to_message.copy(user_id)
@@ -196,7 +198,6 @@ async def brd(bot, msg):
                         await ed.edit(f"Broadcasting... {t} done")
                 except:
                     pass
-                                        
                 
             await msg.reply(f"Broadcast done to {d} out of {t} users!")    
             return
@@ -215,7 +216,7 @@ async def stats(bot, msg):
         users = getall()
         t = 0
         for x in users:
-            t+=1                                                
+            t += 1                                                
         await msg.reply(f"Total {t} users!")    
         return
     except Exception as e:
@@ -239,9 +240,8 @@ async def start(bot, msg):
         return await msg.reply(f"**ERROR:** `one process is already running for {userid}`")
     
     a = await msg.reply("**⌛️Generating Keys**\n\n**Note: It usually takes about 10 mins if the bot isn't flooded with many users (can take upto an hour in such cases)\n\nIf the process gets aborted, you will get to know!__", reply_markup=InlineKeyboardMarkup([
-                [InlineKeyboardButton("Check Status", "status")],               
+                [InlineKeyboardButton("Check Status", "status")],
             ]))
-
        
     await asyncio.gather(promogen(games["ZOO"]["app_token"], games["ZOO"]["promo_id"], "ZOO", bot, msg, a),
                          promogen(games["TILE"]["app_token"], games["TILE"]["promo_id"], "TILE", bot, msg, a),
@@ -255,8 +255,6 @@ async def start(bot, msg):
                          promogen(games["BOUNC"]["app_token"], games["BOUNC"]["promo_id"], "BOUNC", bot, msg, a),
                          promogen(games["HIDE"]["app_token"], games["HIDE"]["promo_id"], "HIDE", bot, msg, a)
                          )    
-
-
     
     ZOO = "\n**🔑 [Game] ZOO**\n"
     TILE = "\n**🔑 [Game] TILE**\n"
@@ -295,7 +293,7 @@ async def start(bot, msg):
             BOUNC += f"`{x}`\n" 
         elif x.startswith("HIDE"):
             HIDE += f"`{x}`\n"           
-        else:              
+        else: 
             pass
 
     donate = """**Kindly consider donating:**
@@ -305,15 +303,16 @@ async def start(bot, msg):
 💳 **ETH:** `0xa6d2D5b56ED1a78504ea32d0255aF10567B0115c`
 💳 **TON:** `UQAX9qPigD9JpdDQ3hhc3PyxUF4w-OK0GbjfPHO6NXTS2wth`"""
     await a.edit_reply_markup()
-    b = await a.reply(ZOO+TILE+cube+train+merge+twerk+poly+trim+STONE+BOUNC+HIDE, quote=True)
+    b = await a.reply(ZOO + TILE + cube + train + merge + twerk + poly + trim + STONE + BOUNC + HIDE, quote=True)
     await b.reply(donate, quote=True)
     temp[msg.from_user.id].clear()
     alr.remove(msg.from_user.id)
 
+
 @bot.on_callback_query(filters.regex("status"))
 async def cb(bot, query: CallbackQuery):
     user = query.from_user.id
-    a, b, c, d, e, f, g, h, i, j, k = 0,0,0,0,0,0,0,0,0,0,0
+    a, b, c, d, e, f, g, h, i, j, k = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     for x in temp[user]:
         if x.startswith("ZOO"):
             a += 1
@@ -337,22 +336,23 @@ async def cb(bot, query: CallbackQuery):
             j += 1   
         elif x.startswith("HIDE"):
             k += 1             
-        else:              
+        else: 
             pass        
 
     await query.answer(f"""STATUS of Keys Generated 🔑
     
-ZOO: {a}/4
-TILE: {b}/4
-CUBE: {c}/4
-TRAIN: {d}/4
-MERGE: {e}/4
-TWERK: {f}/4
-POLY: {g}/4
-TRIM: {h}/4
-STONE: {i}/4
-BOUNCE: {j}/4
-HIDE: {k}/4""", show_alert=True)
+ZOO: {a}/1
+TILE: {b}/1
+CUBE: {c}/1
+TRAIN: {d}/1
+MERGE: {e}/1
+TWERK: {f}/1
+POLY: {g}/1
+TRIM: {h}/1
+STONE: {i}/1
+BOUNCE: {j}/1
+HIDE: {k}/1""", show_alert=True)
+
 
 bot.start()
 idle()

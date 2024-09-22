@@ -51,6 +51,7 @@ Before deploying the bot, you need to configure it with your Telegram API creden
 - `api_id`: Your Telegram API ID
 - `api_hash`: Your Telegram API Hash
 - `bot_token`: Your Telegram Bot Token
+- `mongodb_uri`: Your MongoDB URI (from mongodb.com)
 - `owner_id`: Your Telegram User ID (for administrative purposes)
 
 ### Running the Bot
